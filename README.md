@@ -52,3 +52,15 @@ chmod +x ~/.local/bin/ccusage-status
 ```
 
 That's it! One script, 3KB, no complexity.
+
+## Development
+
+For maintainers only - users don't need this:
+
+```bash
+npm install          # Install dev dependencies
+npm test            # Run tests
+npm run update-version  # Sync version from package.json
+```
+
+The ccusage version is managed via `package.json` for automated updates.

@@ -1,0 +1,19 @@
+{
+  "name": "ccusage-status",
+  "version": "1.0.0",
+  "description": "Status bar widget for Claude usage monitoring",
+  "scripts": {
+    "test": "./test.sh",
+    "update-version": "node update-version.js"
+  },
+  "devDependencies": {
+    "ccusage": "15.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cole-robertson/ccusage-status.git"
+  },
+  "keywords": ["ccusage", "claude", "status-bar", "waybar", "polybar"],
+  "author": "Cole Robertson",
+  "license": "MIT"
+}

@@ -1,0 +1,39 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+        npm install
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Check if ccusage still works
+      run: |
+        # Test that ccusage can be called
+        if ! npx ccusage@latest --version >/dev/null 2>&1; then
+          echo "ccusage command failed"
+          exit 1
+        fi
+        echo "ccusage is accessible"

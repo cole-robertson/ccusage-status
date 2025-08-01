@@ -1,3 +1,7 @@
+# Node modules (dev only)
+node_modules/
+package-lock.json
+
 # Test files
 *.test.json
 
