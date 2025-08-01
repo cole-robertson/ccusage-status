@@ -1,0 +1,8 @@
+# Test files
+*.test.json
+
+# Logs
+*.log
+
+# Backups
+*.bak

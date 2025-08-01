@@ -1,0 +1,87 @@
+#!/bin/bash
+# ccusage-status - Status bar widget for Claude usage monitoring
+# Shows cost and time remaining in 5-hour billing window
+
+CCUSAGE_VERSION="15.5.2"
+
+# Check for dependencies
+check_deps() {
+    local missing=()
+    command -v jq >/dev/null || missing+=("jq")
+    command -v npx >/dev/null || missing+=("npx (Node.js)")
+    
+    if [ ${#missing[@]} -ne 0 ]; then
+        echo "{\"text\":\"—\",\"tooltip\":\"Missing: ${missing[*]}\",\"class\":\"error\",\"percentage\":0}"
+        exit 0
+    fi
+}
+
+# Run ccusage
+get_data() {
+    npx ccusage@$CCUSAGE_VERSION blocks --json 2>/dev/null
+}
+
+# Main
+check_deps
+
+output=$(get_data)
+if [ $? -ne 0 ] || [ -z "$output" ]; then
+    echo '{"text":"—","tooltip":"ccusage unavailable","class":"error","percentage":0}'
+    exit 0
+fi
+
+# Parse active block
+block=$(echo "$output" | jq -r '.blocks[] | select(.isActive == true and .isGap == false)' 2>/dev/null)
+if [ -z "$block" ]; then
+    echo '{"text":"—","tooltip":"No active session","class":"error","percentage":0}'
+    exit 0
+fi
+
+# Extract values
+cost=$(echo "$block" | jq -r '.costUSD // 0')
+remaining_minutes=$(echo "$block" | jq -r '.projection.remainingMinutes // 0' | cut -d. -f1)
+tokens=$(echo "$block" | jq -r '.totalTokens // 0')
+start_time=$(echo "$block" | jq -r '.startTime // ""')
+
+# Calculate time
+hours=$((remaining_minutes / 60))
+minutes=$((remaining_minutes % 60))
+
+# Calculate percentage (5 hour window = 300 minutes)
+percentage=0
+if [ -n "$start_time" ]; then
+    # Try GNU date first, then BSD date
+    if date --version >/dev/null 2>&1; then
+        # GNU date
+        start=$(date -d "$start_time" +%s 2>/dev/null)
+    else
+        # BSD date
+        start=$(date -j -f "%Y-%m-%dT%H:%M:%S" "${start_time%%.*}" +%s 2>/dev/null)
+    fi
+    
+    if [ -n "$start" ]; then
+        now=$(date +%s)
+        elapsed_minutes=$(( (now - start) / 60 ))
+        percentage=$((elapsed_minutes * 100 / 300))
+        [ $percentage -gt 100 ] && percentage=100
+    fi
+fi
+
+# Determine CSS class
+class="normal"
+[ $percentage -ge 80 ] && class="warning"
+[ $percentage -ge 95 ] && class="critical"
+
+# Format values
+cost_formatted=$(printf "%.2f" "$cost")
+tokens_formatted=$(echo "$tokens" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+
+# Output JSON
+cat <<EOF
+{
+  "text": "\$$cost_formatted [${hours}h ${minutes}m]",
+  "tooltip": "💰 Cost: \$$cost_formatted\n⏳ Time remaining: ${hours}h ${minutes}m\n📊 Tokens: $tokens_formatted\n📈 Usage: $percentage%",
+  "class": "$class",
+  "percentage": $percentage
+}
+EOF
