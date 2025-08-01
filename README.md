@@ -64,3 +64,7 @@ npm run update-version  # Sync version from package.json
 ```
 
 The ccusage version is managed via `package.json` for automated updates.
+
+## Credits
+
+Built on top of [ccusage](https://github.com/ryoppippi/ccusage) by [@ryoppippi](https://github.com/ryoppippi) - the excellent CLI tool for analyzing Claude usage.
