@@ -27,15 +27,22 @@ sudo chmod +x /usr/local/bin/ccusage-status
 
 echo "✓ Installed to /usr/local/bin/ccusage-status"
 echo ""
-echo "Add to your status bar:"
-echo ""
-echo "Waybar:"
-echo '  "custom/ccusage": {'
-echo '    "format": "󰚩 {text}",'
-echo '    "return-type": "json",'
-echo '    "interval": 10,'
-echo '    "exec": "ccusage-status",'
-echo '    "tooltip": true'
-echo '  }'
-echo ""
-echo "See https://github.com/cole-robertson/ccusage-status for Polybar, i3blocks, etc."
+
+# Check if we should auto-configure waybar
+if [ "$1" = "--waybar" ] || [ "$1" = "-w" ]; then
+    echo "Setting up waybar configuration..."
+    curl -fsSL https://raw.githubusercontent.com/cole-robertson/ccusage-status/main/setup-waybar.sh | bash
+else
+    echo "Add to your status bar:"
+    echo ""
+    echo "Waybar (or use --waybar flag to auto-configure):"
+    echo '  "custom/ccusage": {'
+    echo '    "format": "󰚩 {text}",'
+    echo '    "return-type": "json",'
+    echo '    "interval": 10,'
+    echo '    "exec": "ccusage-status",'
+    echo '    "tooltip": true'
+    echo '  }'
+    echo ""
+    echo "See https://github.com/cole-robertson/ccusage-status for Polybar, i3blocks, etc."
+fi

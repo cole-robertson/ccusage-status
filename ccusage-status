@@ -4,11 +4,22 @@
 
 CCUSAGE_VERSION="15.5.2"
 
+# Set up PATH for nvm if available
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use >/dev/null 2>&1
+    PATH="$HOME/.nvm/versions/node/v20.19.4/bin:$PATH"
+fi
+
 # Check for dependencies
 check_deps() {
     local missing=()
     command -v jq >/dev/null || missing+=("jq")
-    command -v npx >/dev/null || missing+=("npx (Node.js)")
+    
+    # Check for npx in various locations
+    if ! command -v npx >/dev/null && ! [ -x "$HOME/.nvm/versions/node/v20.19.4/bin/npx" ]; then
+        missing+=("npx (Node.js)")
+    fi
     
     if [ ${#missing[@]} -ne 0 ]; then
         echo "{\"text\":\"—\",\"tooltip\":\"Missing: ${missing[*]}\",\"class\":\"error\",\"percentage\":0}"
@@ -18,7 +29,16 @@ check_deps() {
 
 # Run ccusage
 get_data() {
-    npx ccusage@$CCUSAGE_VERSION blocks --json 2>/dev/null
+    # Try to find npx in common locations
+    if command -v npx >/dev/null 2>&1; then
+        npx ccusage@$CCUSAGE_VERSION blocks --json 2>/dev/null
+    elif [ -x "$HOME/.nvm/versions/node/v20.19.4/bin/npx" ]; then
+        "$HOME/.nvm/versions/node/v20.19.4/bin/npx" ccusage@$CCUSAGE_VERSION blocks --json 2>/dev/null
+    elif [ -x "/usr/bin/npx" ]; then
+        /usr/bin/npx ccusage@$CCUSAGE_VERSION blocks --json 2>/dev/null
+    else
+        return 1
+    fi
 }
 
 # Main

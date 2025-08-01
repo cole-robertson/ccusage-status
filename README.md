@@ -8,6 +8,11 @@ Minimal status bar widget for Claude usage. Shows cost and time remaining.
 curl -fsSL https://raw.githubusercontent.com/cole-robertson/ccusage-status/main/install.sh | bash
 ```
 
+**Auto-configure for Waybar**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/cole-robertson/ccusage-status/main/install.sh | bash -s -- --waybar
+```
+
 **Requires**: `jq` and `node` (for npx)
 
 ## Configure
