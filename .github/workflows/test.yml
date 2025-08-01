@@ -31,9 +31,9 @@ jobs:
     
     - name: Check if ccusage still works
       run: |
-        # Test that ccusage can be called
-        if ! npx ccusage@latest --version >/dev/null 2>&1; then
-          echo "ccusage command failed"
+        # Test that ccusage can be installed and has expected commands
+        npx ccusage@15.5.2 --help 2>&1 | grep -q "blocks" || {
+          echo "ccusage doesn't have expected 'blocks' command"
           exit 1
-        fi
-        echo "ccusage is accessible"
+        }
+        echo "✓ ccusage is accessible and has blocks command"

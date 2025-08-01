@@ -5,6 +5,9 @@ set -e
 
 echo "Testing ccusage-status..."
 
+# In CI, ccusage won't have data, so we test error handling
+export CI="${CI:-false}"
+
 # Test 1: Script outputs valid JSON
 output=$(./ccusage-status 2>/dev/null || echo '{"text":"—","tooltip":"ccusage unavailable","class":"error","percentage":0}')
 if ! echo "$output" | jq . >/dev/null 2>&1; then
