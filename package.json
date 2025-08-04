@@ -7,7 +7,7 @@
     "update-version": "node update-version.js"
   },
   "devDependencies": {
-    "ccusage": "15.5.2"
+    "ccusage": "15.6.0"
   },
   "repository": {
     "type": "git",
